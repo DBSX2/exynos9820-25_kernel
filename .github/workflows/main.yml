@@ -1,19 +1,29 @@
-name: Build
+name: Build NetHunter Kernel
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      - name: env setup
-        run: sudo apt-get update --fix-missing && sudo apt-get install bc bison build-essential zstd clang flex gnupg gperf ccache liblz4-tool libncurses5-dev libsdl1.2-dev libstdc++6 libxml2 libxml2-utils lzop pngcrush schedtool squashfs-tools xsltproc zlib1g-dev libncurses5-dev bzip2 git gcc g++ libssl-dev openssl python3 -y && sudo apt-get install gcc-aarch64-linux-gnu && sudo apt-get install gcc-arm-linux-gnueabihf&& sudo apt-get install lld&& sudo apt-get install gcc-arm-linux-gnueabi
-        
-      - name: build
-        env:
-          token: ${{ secrets.TOKEN }}
-        run: chmod +x build.sh && ./build.sh "${token}" N975F
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update --fix-missing
+          sudo apt-get install bc bison build-essential zstd clang flex g++-multilib libc6-dev-i386 lib32ncurses5-dev lib32z1-dev libelf-dev libssl-dev libxml2-utils lzop python3 rsync unzip -y
 
+      - name: Compile Kernel for N975F
+        run: |
+          chmod +x cruelbuild
+          ./cruelbuild mkimg name="NetHunter-MITM" model=N975F +magisk +nohardening
+
+      - name: Upload Kernel Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetHunter-Kernel-N975F
+          path: "*.img"
