@@ -17,12 +17,14 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update --fix-missing
-          sudo apt-get install bc bison build-essential zstd clang flex g++-multilib libc6-dev-i386 lib32ncurses5-dev lib32z1-dev libelf-dev libssl-dev libxml2-utils lzop python3 rsync unzip -y
+          sudo apt-get install bc bison build-essential zstd clang flex g++-multilib libc6-dev-i386 lib32ncurses5-dev lib32z1-dev libelf-dev libssl-dev libxml2-utils lzop python3 rsync unzip libncurses5 libtinfo5 -y
+          sudo ln -sf /lib/x86_64-linux-gnu/libtinfo.so.6 /lib/x86_64-linux-gnu/libtinfo.so.5
 
       - name: Compile Kernel for N975F
         run: |
+          export HOSTCFLAGS="-fcommon"
+          export KCFLAGS="-w"
           chmod +x cruelbuild
-          # 关键修改：把 +magisk 换成了 -magisk，绕过失效的下载链接
           ./cruelbuild mkimg name="NetHunter-MITM" model=N975F -magisk +nohardening
 
       - name: Upload Kernel Artifact
