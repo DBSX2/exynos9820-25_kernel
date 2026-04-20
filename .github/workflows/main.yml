@@ -22,7 +22,8 @@ jobs:
       - name: Compile Kernel for N975F
         run: |
           chmod +x cruelbuild
-          ./cruelbuild mkimg name="NetHunter-MITM" model=N975F +magisk +nohardening
+          # 关键修改：把 +magisk 换成了 -magisk，绕过失效的下载链接
+          ./cruelbuild mkimg name="NetHunter-MITM" model=N975F -magisk +nohardening
 
       - name: Upload Kernel Artifact
         uses: actions/upload-artifact@v4
